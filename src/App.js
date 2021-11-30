@@ -1,58 +1,44 @@
 import React from "react";
-import Card from "./Card";
-import "./App.css";
-// import albums from "./albums.json";
-import SearchForm from "./SearchForm";
-import dataSource from "./dataSource";
+import AboutThisSite from './AboutThisSite';
+import ContactUs from './ContactUs';
+import LoginPage from './LoginPage';
+import User from './User.js';
+import { BrowserRouter, Route, Link, Navigate, Routes } from "react-router-dom";
+import Navbar from './Navbar'
+import "../node_modules/bootstrap/dist/css/bootstrap.min.css"
+
 class App extends React.Component {
-    state = { albumList: [], searchPhrase: "" };
 
-    componentDidMount() {
-        this.loadAlbums();
-        // this.setState({
-        //     albumList: albums
-        // })
+    state = { isLoggedIn: false };
+
+    handleLogin = (status) => {
+        this.setState({ isLoggedIn: status }, () => {
+            console.log("App says login status =", this.state.isLoggedIn);
+        });
     }
-
-    loadAlbums = async () => {
-        const response = await dataSource.get('/albums');
-        this.setState({albumList: response.data});
-    }
-
-    updateSearchResults = async (phrase) => {
-        console.log("phrase = ", phrase);
-        this.setState({ searchPhrase: phrase });
-        const response = await dataSource.get('/albums/search/description/' + phrase);
-        console.log(response.data);
-        this.setState({albumList: response.data});
-    }
-
-    renderedList = () => {
-        return this.state.albumList.map(
-            (album) => {
-                //if(album.description.toLowerCase().includes(this.state.searchPhrase.toLowerCase()) || this.state.searchPhrase === "")
-                        return (<Card key= {album.id} albumTitle={album.title} albumDescription={album.description} buttonText="OK" imgURL={album.image} />
-                );
-                // else
-                //     console.log(album, "does not match", this.state.searchPhrase);
-                // return  <div></div>
-                }
-        );
-    };
 
     render() {
         return (
-            <div>
-                <div className="container">
-                    <SearchForm onSubmit={this.updateSearchResults} />
-                </div>
-                <div className="container">
-                    {this.renderedList()}
-                </div>
-            </div>
+            <BrowserRouter>
+                <Navbar />
+                {this.state.isLoggedIn ? <span>You are are logged in</span> : <span>Not logged in</span>}
+                <Routes>
+                    <Route path="/about" element={<AboutThisSite/>} />
+                    <Route path="/contact" element={<ContactUs />} />
+                    <Route path="/login" element={<LoginPage onClick={this.handleLogin} />} />
+                    <Route path="/user/:username" element={<User/>} />
+                </Routes>
+                <h5>Some friends of mine</h5>
+                <ul>
+                    <li><Link to="/user/Lucious">Lucious</Link></li>
+                    <li><Link to="/user/Barnabas">Barnabas</Link></li>
+                    <li><Link to="/user/Grover">Grover</Link></li>
+                    <li><Link to="/user/Joplin">Joplin</Link></li>
+                </ul>
+
+            </BrowserRouter>
         )
     }
-
 }
 
 export default App;
